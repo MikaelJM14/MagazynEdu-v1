@@ -1,7 +1,11 @@
+using MagazynEdu.ApplicationServices.API.Domain;
+using MagazynEdu.DataAccess;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,11 +30,18 @@ namespace MagazynEdu_v1
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMediatR(typeof(ResponseBase<>));
+
+            services.AddScoped(typeof(IRepository<> ),typeof(Repository<>));
+
+            services.AddDbContext<WarehouseStorageContext>(
+                opt =>
+                opt.UseSqlServer(this.Configuration.GetConnectionString("WarehouseDatabaseConnection")));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "MagazynEdu_v1", Version = "v1" });
+                c.SwaggerDoc("v2", new OpenApiInfo { Title = "MagazynEdu", Version = "v2" });
             });
         }
 
@@ -41,7 +52,7 @@ namespace MagazynEdu_v1
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MagazynEdu_v1 v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v2/swagger.json", "MagazynEdu v2"));
             }
 
             app.UseHttpsRedirection();
@@ -54,6 +65,8 @@ namespace MagazynEdu_v1
             {
                 endpoints.MapControllers();
             });
+
+            //Progress End W5, L1
         }
     }
 }
